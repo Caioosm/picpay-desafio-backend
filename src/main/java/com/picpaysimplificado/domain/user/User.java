@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-@RequiredArgsConstructor
 public class User {
 
     @Id
