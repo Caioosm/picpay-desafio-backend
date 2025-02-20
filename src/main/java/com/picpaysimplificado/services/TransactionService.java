@@ -22,9 +22,11 @@ public class TransactionService {
     private final TransactionRepository repository;
     private final UserService userService;
 
+    private final NotificationService notificationService;
+
     private final RestTemplate restTemplate;
 
-    public void createTransaction(TransactionDTO transaction) throws Exception {
+    public Transaction createTransaction(TransactionDTO transaction) throws Exception {
         User sender = this.userService.findUserById(transaction.senderId());
         User receiver = this.userService.findUserById(transaction.receiverId());
 
@@ -42,11 +44,16 @@ public class TransactionService {
         newTransaction.setTimestamp(LocalDateTime.now());
 
         sender.setBalance(sender.getBalance().subtract(transaction.value()));
-        receiver.setBalance(sender.getBalance().add(transaction.value()));
+        receiver.setBalance(receiver.getBalance().add(transaction.value()));
 
         this.repository.save(newTransaction);
         this.userService.saveUser(sender);
         this.userService.saveUser(receiver);
+
+        this.notificationService.sendNotification(sender, "Transacao realizada com sucesso");
+        this.notificationService.sendNotification(receiver, "Transacao recebida com sucesso");
+
+        return newTransaction;
     }
 
     public boolean authoriseTransaction(User sender, BigDecimal value){
